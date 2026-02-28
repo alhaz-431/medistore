@@ -8,7 +8,7 @@ const seedAdmin = async () => {
   const adminData = {
     name: "Admin",
     email: "admin@gmail.com",
-    role: UserRole.admin,
+    role: UserRole.ADMIN,
     password: hashedPassword,
   };
 
