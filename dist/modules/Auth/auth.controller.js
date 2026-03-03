@@ -12,7 +12,7 @@ const createUser = async (req, res, next) => {
         (0, sendResponse_1.default)(res, {
             statusCode: 201,
             success: true,
-            message: "User created",
+            message: "User registered successfully",
             data: result,
         });
     }
@@ -24,28 +24,41 @@ const loginUser = async (req, res) => {
     try {
         const result = await auth_service_1.AuthService.loginUserIntoDB(req.body);
         res.cookie("token", result.token, {
-            secure: false,
+            secure: process.env.NODE_ENV === "production",
             httpOnly: true,
-            sameSite: "strict", // none / strict / lax
+            sameSite: "lax",
+            maxAge: 1000 * 60 * 60 * 24 * 7,
         });
         (0, sendResponse_1.default)(res, {
-            statusCode: 201,
+            statusCode: 200,
             success: true,
             message: "User logged in successfully",
-            data: result,
+            data: {
+                user: result.user,
+                token: result.token,
+            },
         });
     }
     catch (error) {
         (0, sendResponse_1.default)(res, {
-            statusCode: 500,
+            statusCode: 401,
             success: false,
-            message: error?.message || "Something went wrong",
+            message: error?.message || "Invalid credentials",
             data: null,
         });
     }
 };
+const logoutUser = async (req, res) => {
+    res.clearCookie("token");
+    (0, sendResponse_1.default)(res, {
+        statusCode: 200,
+        success: true,
+        message: "User logged out successfully",
+        data: null,
+    });
+};
 exports.AuthController = {
-    // Add controller methods here
     createUser,
     loginUser,
+    logoutUser,
 };
